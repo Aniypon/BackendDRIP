@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Вход</title>
+</head>
+<body>
+<h2>Вход в систему</h2>
+
+<!-- Сообщение при логауте -->
+<div id="logout" style="color: green;"></div>
+<!-- Сообщение об ошибке -->
+<div id="error" style="color: red;"></div>
+
+<form action="/login" method="post">
+    <div>
+        <label>Имя пользователя:
+            <input type="text" name="username" />
+        </label>
+    </div>
+    <div>
+        <label>Пароль:
+            <input type="password" name="password" />
+        </label>
+    </div>
+    <div>
+        <input type="hidden" name="_csrf" id="csrfInput" />
+        <input type="submit" value="Войти" />
+    </div>
+</form>
+
+<script>
+    fetch('/csrf')
+        .then(response => response.json())
+        .then(csrf => {
+            document.getElementById('csrfInput').value = csrf.token;
+        });
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('logout') !== null) {
+        document.getElementById('logout').textContent = 'Вы успешно вышли.';
+    }
+    if (params.get('error') !== null) {
+        document.getElementById('error').textContent = 'Неверное имя пользователя или пароль.';
+    }
+</script>
+</body>
+</html>

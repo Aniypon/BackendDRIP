@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - pg_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - pg_network
+
+#  flyway:
+#    image: flyway/flyway:10.10.0
+#    container_name: flyway
+#    volumes:
+#      - ./migrations:/flyway/sql
+#    environment:
+#      FLYWAY_DRIVER: org.postgresql.Driver
+#      FLYWAY_URL: jdbc:postgresql://postgres:5432/mydatabase
+#      FLYWAY_USER: admin
+#      FLYWAY_PASSWORD: password
+#      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+#    depends_on:
+#      - postgres
+#    networks:
+#      - pg_network
+#    command: ["migrate"]
+#
+#  liquibase:
+#    image: liquibase/liquibase:latest
+#    container_name: liquibase
+#    depends_on:
+#      - postgres
+#    environment:
+#      LIQUIBASE_COMMAND_URL: jdbc:postgresql://postgres:5432/mydatabase
+#      LIQUIBASE_COMMAND_USERNAME: admin
+#      LIQUIBASE_COMMAND_PASSWORD: password
+#      LIQUIBASE_COMMAND_DRIVER: org.postgresql.Driver
+#      LIQUIBASE_SEARCH_PATH: /liquibase/changelog
+#      LIQUIBASE_COMMAND_CHANGELOG_FILE: changelog.yaml
+#    volumes:
+#      - ./liquibase/changelog:/liquibase/changelog
+#    networks:
+#      - pg_network
+#    command: ["update"]
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  pg_network:
+    driver: bridge

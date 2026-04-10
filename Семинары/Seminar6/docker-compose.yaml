@@ -1,0 +1,145 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    networks:
+      - pg_network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - pg_network
+
+  flyway-postgres:
+    image: flyway/flyway:lateste
+    container_name: flyway-postgres
+    volumes:
+      - ./migrations/postgres:/flyway/sql
+    environment:
+      FLYWAY_DRIVER: org.postgresql.Driver
+      FLYWAY_URL: jdbc:postgresql://postgres:5432/mydatabase
+      FLYWAY_USER: admin
+      FLYWAY_PASSWORD: password
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+    depends_on:
+      - postgres
+    networks:
+      - pg_network
+    command: ["migrate"]
+
+#  liquibase:
+#    image: liquibase/liquibase:latest
+#    container_name: liquibase
+#    depends_on:
+#      - postgres
+#    environment:
+#      LIQUIBASE_COMMAND_URL: jdbc:postgresql://postgres:5432/mydatabase
+#      LIQUIBASE_COMMAND_USERNAME: admin
+#      LIQUIBASE_COMMAND_PASSWORD: password
+#      LIQUIBASE_COMMAND_DRIVER: org.postgresql.Driver
+#      LIQUIBASE_SEARCH_PATH: /liquibase/changelog
+#      LIQUIBASE_COMMAND_CHANGELOG_FILE: changelog.yaml
+#    volumes:
+#      - ./liquibase/changelog:/liquibase/changelog
+#    networks:
+#      - pg_network
+#    command: ["update"]
+
+  clickhouse:
+    image: "clickhouse/clickhouse-server:latest"
+    container_name: clickhouse
+    environment:
+      - CLICKHOUSE_USER=admin
+      - CLICKHOUSE_PASSWORD=password
+      - CLICKHOUSE_DB=mydatabase
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    networks:
+      - clickhouse
+
+  flyway-clickhouse:
+    image: hubbitus/flyway-clickhouse:latest
+    container_name: flyway-clickhouse
+    volumes:
+      - ./migrations/clickhouse:/flyway/sql
+    environment:
+      FLYWAY_URL: jdbc:clickhouse://clickhouse:8123/mydatabase?compress=false
+      FLYWAY_USER: admin
+      FLYWAY_PASSWORD: password
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+    depends_on:
+      - postgres
+    networks:
+      - clickhouse
+    command: ["migrate"]
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - redis
+
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: s3
+    ports:
+      - "9090:9000"
+      - "9091:9001"
+    environment:
+      MINIO_ROOT_USER: minioAccessKey
+      MINIO_ROOT_PASSWORD: minioSecretKey
+    networks:
+      - s3
+    command: [ "server", "--console-address", ":9001", "/data" ]
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: mydatabase
+    networks:
+      - mongo
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
+
+networks:
+  pg_network:
+    driver: bridge
+  clickhouse:
+    driver: bridge
+  redis:
+    driver: bridge
+  s3:
+    driver: bridge
+  mongo:
+    driver: bridge

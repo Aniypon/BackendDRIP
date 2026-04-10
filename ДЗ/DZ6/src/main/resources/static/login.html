@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>JWT Login</title>
+</head>
+<body>
+<h2>Вход (JWT вместо JSESSIONID)</h2>
+
+<form id="loginForm">
+    <label>Логин: <input name="username" type="text" value="user"></label><br>
+    <label>Пароль: <input name="password" type="password" value="password"></label><br>
+    <button type="submit">Войти</button>
+</form>
+
+<p id="status"></p>
+<pre id="token"></pre>
+
+<button id="callApi">Вызвать /api/user</button>
+<pre id="apiResult"></pre>
+
+<script>
+    const statusEl = document.getElementById('status');
+    const tokenEl = document.getElementById('token');
+    const apiResultEl = document.getElementById('apiResult');
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const body = new URLSearchParams(formData);
+
+        const resp = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body
+        });
+
+        if (!resp.ok) {
+            statusEl.textContent = 'Ошибка авторизации';
+            tokenEl.textContent = '';
+            return;
+        }
+
+        const data = await resp.json();
+        localStorage.setItem('jwt', data.token);
+        statusEl.textContent = 'Успешно. Токен сохранен в localStorage';
+        tokenEl.textContent = data.token;
+    });
+
+    document.getElementById('callApi').addEventListener('click', async () => {
+        const token = localStorage.getItem('jwt');
+        const resp = await fetch('/api/user', {
+            headers: {
+                'Authorization': token ? `Bearer ${token}` : ''
+            }
+        });
+
+        const text = await resp.text();
+        apiResultEl.textContent = `HTTP ${resp.status}\n${text}`;
+    });
+</script>
+</body>
+</html>

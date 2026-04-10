@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: dz4-postgres
+    environment:
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: app_password
+      POSTGRES_DB: app_db
+    ports:
+      - "5436:5432"
+    volumes:
+      - dz4_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app_user -d app_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  flyway:
+    image: flyway/flyway:10.10.0
+    container_name: dz4-flyway
+    command: ["migrate"]
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres:5432/app_db
+      FLYWAY_USER: app_user
+      FLYWAY_PASSWORD: app_password
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+    volumes:
+      - ./migrations:/flyway/sql
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  app:
+    build: .
+    container_name: dz4-app
+    depends_on:
+      flyway:
+        condition: service_completed_successfully
+
+volumes:
+  dz4_postgres_data:

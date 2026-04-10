@@ -1,0 +1,1 @@
+cp ./user-service/user-service.yaml ./order-service/user-service.yaml

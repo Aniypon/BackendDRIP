@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # База данных PostgreSQL для модульного монолита
+  modular-monolith-db:
+    image: postgres:15
+    container_name: modular-monolith-postgres
+    environment:
+      POSTGRES_DB: monolith_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - modular_monolith_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Приложение модульного монолита
+  modular-monolith-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: modular-monolith-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://modular-monolith-db:5432/monolith_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      modular-monolith-db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  modular_monolith_postgres_data:

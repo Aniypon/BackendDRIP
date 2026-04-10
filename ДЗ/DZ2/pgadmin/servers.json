@@ -1,0 +1,22 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Postgres DB1",
+      "Group": "DZ2",
+      "Host": "postgres-db1",
+      "Port": 5432,
+      "MaintenanceDB": "app_db1",
+      "Username": "app_user",
+      "SSLMode": "prefer"
+    },
+    "2": {
+      "Name": "Postgres DB2",
+      "Group": "DZ2",
+      "Host": "postgres-db2",
+      "Port": 5432,
+      "MaintenanceDB": "app_db2",
+      "Username": "app_user",
+      "SSLMode": "prefer"
+    }
+  }
+}
