@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS decision_audit (
+    id BIGSERIAL PRIMARY KEY,
+    amount INT NOT NULL,
+    vip BOOLEAN NOT NULL,
+    branch VARCHAR(64) NOT NULL,
+    decision VARCHAR(64) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

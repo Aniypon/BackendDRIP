@@ -1,0 +1,119 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}},
+      "targets": [
+        {
+          "expr": "sum(rate(decision_branch_total[1m])) by (branch)",
+          "legendFormat": "{{branch}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Decision Branch RPS",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "id": 2,
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}},
+      "targets": [
+        {
+          "expr": "sum(rate(decision_branch_latency_seconds_sum[5m])) by (branch) / sum(rate(decision_branch_latency_seconds_count[5m])) by (branch)",
+          "legendFormat": "{{branch}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Decision Branch Avg Latency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8},
+      "id": 3,
+      "targets": [
+        {
+          "expr": "sum(decision_errors_total)",
+          "refId": "A"
+        }
+      ],
+      "title": "Decision Errors Total",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {"defaults": {"unit": "ops"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 16, "x": 8, "y": 8},
+      "id": 4,
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}},
+      "targets": [
+        {
+          "expr": "sum(irate(pg_stat_database_xact_commit{instance=\"$instance\", datname=~\"$datname\"}[5m]))",
+          "legendFormat": "xact_commit irate",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(pg_stat_database_xact_commit{instance=\"$instance\", datname=~\"$datname\"})",
+          "legendFormat": "xact_commit total",
+          "refId": "B"
+        }
+      ],
+      "title": "Postgres Transactions Commit",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["dz8", "observability"],
+  "templating": {
+    "list": [
+      {
+        "current": {"selected": false, "text": "All", "value": ".*"},
+        "datasource": {"type": "prometheus", "uid": "prometheus"},
+        "definition": "label_values(pg_stat_database_xact_commit, instance)",
+        "includeAll": true,
+        "label": "instance",
+        "multi": false,
+        "name": "instance",
+        "query": {"query": "label_values(pg_stat_database_xact_commit, instance)", "refId": "StandardVariableQuery"},
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {"selected": false, "text": "All", "value": ".*"},
+        "datasource": {"type": "prometheus", "uid": "prometheus"},
+        "definition": "label_values(pg_stat_database_xact_commit, datname)",
+        "includeAll": true,
+        "label": "datname",
+        "multi": true,
+        "name": "datname",
+        "query": {"query": "label_values(pg_stat_database_xact_commit, datname)", "refId": "StandardVariableQuery"},
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {"from": "now-15m", "to": "now"},
+  "timepicker": {},
+  "timezone": "",
+  "title": "DZ8 Observability",
+  "uid": "dz8-observability",
+  "version": 1,
+  "weekStart": ""
+}
