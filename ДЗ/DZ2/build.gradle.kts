@@ -19,6 +19,10 @@ repositories {
 dependencies {
     implementation("org.postgresql:postgresql:42.7.7")
     implementation("com.zaxxer:HikariCP:5.1.0")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("com.h2database:h2:2.2.224")
 }
 
 application {
@@ -27,4 +31,8 @@ application {
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

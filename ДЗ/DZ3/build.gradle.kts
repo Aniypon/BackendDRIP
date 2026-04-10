@@ -24,6 +24,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql:42.7.7")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testRuntimeOnly("com.h2database:h2")
 }
 
 tasks.test {

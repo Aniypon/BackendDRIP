@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="dz7-app"/>
+
+    <appender name="STDOUT_JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"service":"${appName}"}</customFields>
+            <includeMdc>true</includeMdc>
+            <includeContext>false</includeContext>
+            <fieldNames>
+                <timestamp>timestamp</timestamp>
+                <level>level</level>
+                <thread>thread</thread>
+                <logger>logger</logger>
+                <message>message</message>
+            </fieldNames>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT_JSON"/>
+    </root>
+
+    <logger name="org.example.dz7" level="DEBUG"/>
+</configuration>

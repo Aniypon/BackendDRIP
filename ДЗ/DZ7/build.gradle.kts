@@ -18,19 +18,21 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     runtimeOnly("org.postgresql:postgresql:42.7.7")
 
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation("io.micrometer:micrometer-tracing-bridge-otel")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
+
+    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testRuntimeOnly("com.h2database:h2")
+    testImplementation("io.micrometer:micrometer-tracing-test")
 }
 
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.bootJar {
-    mainClass.set("org.example.jpa.JpaExamplesApplication")
 }
